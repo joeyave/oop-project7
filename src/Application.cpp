@@ -28,9 +28,15 @@ void Application::processInput() {
             window.close();
 
         if (event.type == sf::Event::KeyPressed) {
-            if (event.key.code == sf::Keyboard::Q) {
+            if (event.key.code == sf::Keyboard::Num1) {
                 auto circle = shapesFactory->createCircle();
                 auto shape = circle->getPrimaryColorCircle();
+                shapes.push_back(shape);
+            }
+
+            if (event.key.code == sf::Keyboard::Num2) {
+                auto rectangle = shapesFactory->createRectangle();
+                auto shape = rectangle->getSecondaryColorRectangle();
                 shapes.push_back(shape);
             }
         }
