@@ -1,1 +1,0 @@
-Abstract factory pattern using SFML
