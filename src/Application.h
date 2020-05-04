@@ -6,12 +6,12 @@
 #define PROJECT6_PART1_APPLICATION_H
 
 #include <SFML/Graphics.hpp>
-#include "shapes/factory/ShapesFactory.h"
-#include "Config.h"
+#include "TextureHolder.h"
+#include "factory/ParticleFactory.h"
 
 class Application {
 public:
-    Application(Config config);
+    Application();
 
     void run();
 
@@ -20,10 +20,20 @@ private:
 
     void render();
 
-    sf::RenderWindow window;
-    ShapesFactory* shapesFactory;
+    void loadTextures();
 
-    std::vector<sf::Shape*> shapes;
+    void update(sf::Time elapsedTime);
+
+    static const sf::Time timePerFrame;
+
+    sf::RenderWindow window;
+    ParticleFactory* particleFactory;
+    TextureHolder<int> textureHolder;
+
+    bool isPaused;
+
+    std::vector<Particle*> particles;
+    std::vector<sf::Sprite> sprites;
 };
 
 
