@@ -4,94 +4,62 @@
 
 #include "Application.h"
 #include "Constants.h"
-#include "factory/SingleParticleFactory.h"
+#include "particles/RectangleParticle.h"
+#include "particles/CircleParticle.h"
+#include "Utils.h"
 #include <experimental/filesystem>
 #include <iostream>
 
-const sf::Time Application::timePerFrame = sf::seconds(1.f / 60.f);
-
 Application::Application() {
-
     window.create(sf::VideoMode(settings::WINDOW_X, settings::WINDOW_Y),
-                  "project 6 (part 1)",
+                  "project 7",
                   sf::Style::Close);
 
     window.setKeyRepeatEnabled(false);
+
     loadTextures();
     isPaused = false;
 }
 
 void Application::run() {
-    sf::Clock clockGameLoop;
-    sf::Time timeSinceLastUpdate = sf::Time::Zero;
+    threads.emplace_back([this]() {
+        srand(time(nullptr));
+        createRandomParticles();
+    });
+
+    threads.emplace_back([this]() {
+        joinParticles();
+    });
+
+    threads.emplace_back([this]() {
+        srand(time(nullptr));
+        moveParticles();
+    });
+
+    threads.emplace_back([this]() {
+        deleteParticles();
+    });
 
     while (window.isOpen()) {
-        sf::Time elapsedTime = clockGameLoop.restart();
-        timeSinceLastUpdate += elapsedTime;
-
-        while (timeSinceLastUpdate > timePerFrame) {
-            timeSinceLastUpdate -= timePerFrame;
-            processInput();
-
-            if (!isPaused) {
-                update(timePerFrame);
-            }
-        }
-        render();
-    }
-}
-
-void Application::processInput() {
-    sf::Event event{};
-    while (window.pollEvent(event)) {
-        if (event.type == sf::Event::Closed)
-            window.close();
-
-        if (event.type == sf::Event::MouseButtonPressed) {
-            // Get mouse position to world coordinates.
-            auto mousePosition = sf::Mouse::getPosition(window);
-            sf::Vector2f converted = window.mapPixelToCoords(mousePosition);
-
-            if (event.mouseButton.button == sf::Mouse::Left) {
-                particleFactory = new SingleParticleFactory(&textureHolder);
-            }
-
-            sf::Sprite sprite(textureHolder.get(2));
-            sprites.push_back(sprite);
-
-            std::vector<Particle*> newParticles = particleFactory->createParticles(settings::SPAWN_AMOUNT, converted);
-            particles.insert(particles.end(), newParticles.begin(), newParticles.end());
-        }
-
-        if (event.type == sf::Event::KeyPressed) {
-            if (event.key.code == sf::Keyboard::Space) {
+        sf::Event event{};
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
                 isPaused = true;
-
-                for (auto particle : particles) {
-                    if (!particle->getTarget()) {
-                        particle->findTarget(particles);
-                        std::cout << particle->getId() << "<->" << particle->getTarget()->getId() << std::endl;
-                    }
+                for (auto& thread : threads) {
+                    thread.join();
                 }
-                for (auto particle : particles) {
-                    std::cout << particle->intersectsWith(particles[0]) << std::endl;
-                }
+                window.close();
             }
         }
-    }
-}
 
-void Application::render() {
-    window.clear();
+        window.clear();
 
-    for (Particle* particle : particles) {
-        window.draw(*particle);
-    }
-    for (auto& sprite : sprites) {
-        window.draw(sprite);
-    }
+        for (Particle* particle : particles) {
+            window.draw(*particle);
+        }
 
-    window.display();
+        window.display();
+    }
 }
 
 void Application::loadTextures() {
@@ -125,7 +93,100 @@ void Application::loadTextures() {
     }
 }
 
-void Application::update(sf::Time elapsedTime) {
-    for (Particle* particle : particles)
-        particle->update(elapsedTime.asSeconds());
+void Application::createRandomParticles() {
+    while (window.isOpen()) {
+        if (particles.size() < settings::MAX_SPAWN_AMOUNT) {
+            mutex.lock();
+
+            int randTexture = getRand(0, textureHolder.size() - 1);
+            int randShape = getRand(0, ParticleFactory::ShapeType::SHAPE_COUNT - 1);
+            int randSize = getRand(settings::MIN_SIZE, settings::MAX_SIZE);
+            int randSpeed = getRand(1, settings::MAX_SPEED);
+            sf::Vector2f position(getRand(0, settings::WINDOW_X), getRand(0, settings::WINDOW_Y));
+
+            Particle* particle;
+
+            if (randShape == ShapeType::Square) {
+                particle = new RectangleParticle(randSpeed, sf::Vector2f(randSize, randSize));
+                particle->setTexture(&textureHolder.get(randTexture));
+                particle->setOrigin(sf::Vector2f(randSize / 2, randSize / 2));
+                particle->setPosition(position);
+            } else {
+                particle = new CircleParticle(randSpeed, randSize);
+                particle->setTexture(&textureHolder.get(randTexture));
+                particle->setOrigin(sf::Vector2f(randSize, randSize));
+                particle->setPosition(position);
+            }
+
+            particles.push_back(particle);
+            mutex.unlock();
+        }
+
+    }
+
 }
+
+void Application::joinParticles() {
+    while (window.isOpen()) {
+        mutex.lock();
+
+        for (auto& particle : particles) {
+            while (particle && !particle->getParticleTarget()) {
+                // Get random element from particles vector.
+                auto randomTarget = *utils::select_randomly(particles.begin(), particles.end());
+
+                if (randomTarget && randomTarget != particle && !randomTarget->getParticleTarget()) {
+                    particle->setParticleTarget(randomTarget);
+                    randomTarget->setParticleTarget(particle);
+                } else {
+                    break;
+                }
+            }
+        }
+        mutex.unlock();
+    }
+}
+
+void Application::moveParticles() {
+    while (window.isOpen()) {
+        for (auto& particle : particles) {
+            if (particle && particle->getParticleTarget()) {
+                if (particle->getPosition().x < particle->getParticleTarget()->getPosition().x) {
+                    particle->move(0.0001f, 0.0f);
+                } else if (particle->getPosition().x > particle->getParticleTarget()->getPosition().x) {
+                    particle->move(-0.0001f, 0.0f);
+                }
+                if (particle->getPosition().y < particle->getParticleTarget()->getPosition().y) {
+                    particle->move(0.0f, 0.0001f);
+                } else if (particle->getPosition().y > particle->getParticleTarget()->getPosition().y) {
+                    particle->move(0.0f, -0.0001f);
+                }
+
+                mutex.lock();
+
+                if (particle->getGlobalBounds().intersects(particle->getParticleTarget()->getGlobalBounds())) {
+                    particle->setId(-1);
+                }
+                mutex.unlock();
+            }
+        }
+    }
+}
+
+void Application::deleteParticles() {
+    while (window.isOpen()) {
+        for (auto& particle : particles) {
+            mutex.lock();
+            if (particle->getId() == -1) {
+                particles.erase(std::remove(particles.begin(),
+                                            particles.end(), particle), particles.end());
+            }
+            mutex.unlock();
+        }
+    }
+}
+
+int Application::getRand(int start, int end) {
+    return rand() % ((end - start) + 1) + start;
+}
+

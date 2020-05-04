@@ -6,34 +6,49 @@
 #define PROJECT6_PART1_APPLICATION_H
 
 #include <SFML/Graphics.hpp>
+#include <chrono>
+#include <thread>
 #include "TextureHolder.h"
 #include "factory/ParticleFactory.h"
+#include "Constants.h"
 
 class Application {
 public:
+    enum ShapeType {
+        Square,
+        Circle,
+        SHAPE_COUNT
+    };
+
     Application();
 
     void run();
 
 private:
-    void processInput();
-
-    void render();
-
     void loadTextures();
 
-    void update(sf::Time elapsedTime);
+    void createRandomParticles();
 
-    static const sf::Time timePerFrame;
+    void joinParticles();
+
+    void moveParticles();
+
+    void deleteParticles();
+
+    int getRand(int start, int end);
 
     sf::RenderWindow window;
-    ParticleFactory* particleFactory;
+    ParticleFactory* particleFactory{};
     TextureHolder<int> textureHolder;
 
     bool isPaused;
 
     std::vector<Particle*> particles;
-    std::vector<sf::Sprite> sprites;
+    std::vector<Particle*> particlesToDelete;
+
+    std::mutex mutex;
+
+    std::vector<std::thread> threads;
 };
 
 

@@ -6,7 +6,7 @@
 #define PROJECT7_PARTICLEFACTORY_H
 
 
-#include "../Particle.h"
+#include "../particles/Particle.h"
 #include "../TextureHolder.h"
 
 class ParticleFactory {
@@ -17,22 +17,15 @@ public:
         SHAPE_COUNT
     };
 
-    virtual std::vector<Particle*> createParticles(int amount, sf::Vector2f where) = 0;
-
-protected:
     explicit ParticleFactory(TextureHolder<int>* textureHolder);
 
-    Particle* createRandomParticle(sf::Vector2f position);
-
-    sf::Shape* createRandomSprite(sf::Vector2f position);
-
-    static int getRand(int lowest, int highest);
-
-private:
-    Particle* createNewParticle(ParticleType::ShapeType shape, ParticleType* type, int speed, sf::Vector2f direction);
-    sf::Shape* createNewParticle(ShapeType shape, int speed, sf::Vector2f direction);
+    Particle* createShape(sf::Vector2f position);
 
 protected:
+    Particle* createRandomParticle(sf::Vector2f position);
+
+    static int r(int lowest, int highest);
+
     TextureHolder<int>* textureHolder;
 };
 

@@ -18,15 +18,8 @@ add_executable(project7 main.cpp
         src/TextureHolder.h
         src/factory/ParticleFactory.cpp
         src/factory/ParticleFactory.h
-        src/ParticleType.cpp
-        src/ParticleType.h
-        src/Particle.cpp
-        src/Particle.h
-        src/SquareParticle.cpp
-        src/SquareParticle.h
-        src/CircleParticle.cpp
-        src/CircleParticle.h
-        src/factory/SingleParticleFactory.cpp
-        src/factory/SingleParticleFactory.h src/Utils.h)
+        src/particles/Particle.cpp
+        src/particles/Particle.h
+        src/Utils.h src/particles/RectangleParticle.cpp src/particles/RectangleParticle.h src/particles/CircleParticle.cpp src/particles/CircleParticle.h)
 
 target_link_libraries(project7 sfml-system sfml-window sfml-graphics sfml-network sfml-audio)
