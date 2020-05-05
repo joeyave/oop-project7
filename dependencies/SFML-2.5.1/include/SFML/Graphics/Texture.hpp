@@ -680,7 +680,7 @@ private:
 ///
 /// // Load a texture from a file
 /// sf::Texture texture;
-/// if (!texture.loadFromFile("texture.png"))
+/// if (!texture.loadFromFile("texture.desert"))
 ///     return -1;
 ///
 /// // Assign it to a sprite

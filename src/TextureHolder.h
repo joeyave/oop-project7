@@ -31,7 +31,8 @@ public:
     }
 
     int size() {
-        return textureMap.size();}
+        return textureMap.size();
+    }
 
 private:
     void insertResource(Identifier id, std::unique_ptr<sf::Texture> texture) {

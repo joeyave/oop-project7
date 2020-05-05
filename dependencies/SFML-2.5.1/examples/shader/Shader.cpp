@@ -194,10 +194,10 @@ public:
         m_surface.setSmooth(true);
 
         // Load the textures
-        if (!m_backgroundTexture.loadFromFile("resources/sfml.png"))
+        if (!m_backgroundTexture.loadFromFile("resources/sfml.desert"))
             return false;
         m_backgroundTexture.setSmooth(true);
-        if (!m_entityTexture.loadFromFile("resources/devices.png"))
+        if (!m_entityTexture.loadFromFile("resources/devices.desert"))
             return false;
         m_entityTexture.setSmooth(true);
 
@@ -287,7 +287,7 @@ public:
         }
 
         // Load the texture
-        if (!m_logoTexture.loadFromFile("resources/logo.png"))
+        if (!m_logoTexture.loadFromFile("resources/logo.desert"))
             return false;
 
         // Load the shader
@@ -371,7 +371,7 @@ int main()
 
     // Create the messages background
     sf::Texture textBackgroundTexture;
-    if (!textBackgroundTexture.loadFromFile("resources/text-background.png"))
+    if (!textBackgroundTexture.loadFromFile("resources/text-background.desert"))
         return EXIT_FAILURE;
     sf::Sprite textBackground(textBackgroundTexture);
     textBackground.setPosition(0, 520);

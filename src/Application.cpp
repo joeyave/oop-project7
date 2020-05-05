@@ -11,14 +11,14 @@ using Random = effolkronium::random_static;
 using namespace std::literals::chrono_literals;
 
 Application::Application() {
+    loadTextures();
+    particleFactory = new ParticleFactory(&textureHolder);
+
     window.create(sf::VideoMode(settings::WINDOW_X, settings::WINDOW_Y),
                   "project 7",
                   sf::Style::Close);
-
     window.setKeyRepeatEnabled(false);
 
-    loadTextures();
-    particleFactory = new ParticleFactory(&textureHolder);
 }
 
 void Application::run() {
@@ -73,10 +73,20 @@ void Application::loadTextures() {
 
     // Get files from folder first.
     std::map<std::string, std::string> files;
-    std::string folderPath = "media";
+    std::string rootFolder = "media";
+
+    for (auto& folder : std::experimental::filesystem::directory_iterator(rootFolder)) {
+        if (!std::experimental::filesystem::is_regular_file(folder)) {
+            std::cout << folder.path().filename() << std::endl;
+        }
+    }
+    std::string folderWithTextures;
+    std::cin >> folderWithTextures;
+
+    folderWithTextures = rootFolder + "/" + folderWithTextures;
 
     //	For each file in folder.
-    for (auto& p : std::experimental::filesystem::directory_iterator(folderPath)) {
+    for (auto& p : std::experimental::filesystem::directory_iterator(folderWithTextures)) {
         // Check if not directory, stream, etc.
         if (!std::experimental::filesystem::is_regular_file(p))
             continue;

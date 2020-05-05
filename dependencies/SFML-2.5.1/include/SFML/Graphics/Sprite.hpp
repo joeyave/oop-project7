@@ -261,7 +261,7 @@ private:
 /// \code
 /// // Declare and load a texture
 /// sf::Texture texture;
-/// texture.loadFromFile("texture.png");
+/// texture.loadFromFile("texture.desert");
 ///
 /// // Create a sprite
 /// sf::Sprite sprite;

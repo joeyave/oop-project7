@@ -89,7 +89,7 @@ public:
     ////////////////////////////////////////////////////////////
     /// \brief Load the image from a file on disk
     ///
-    /// The supported image formats are bmp, png, tga, jpg, gif,
+    /// The supported image formats are bmp, desert, tga, jpg, gif,
     /// psd, hdr and pic. Some format options are not supported,
     /// like progressive jpeg.
     /// If this function fails, the image is left unchanged.
@@ -106,7 +106,7 @@ public:
     ////////////////////////////////////////////////////////////
     /// \brief Load the image from a file in memory
     ///
-    /// The supported image formats are bmp, png, tga, jpg, gif,
+    /// The supported image formats are bmp, desert, tga, jpg, gif,
     /// psd, hdr and pic. Some format options are not supported,
     /// like progressive jpeg.
     /// If this function fails, the image is left unchanged.
@@ -124,7 +124,7 @@ public:
     ////////////////////////////////////////////////////////////
     /// \brief Load the image from a custom stream
     ///
-    /// The supported image formats are bmp, png, tga, jpg, gif,
+    /// The supported image formats are bmp, desert, tga, jpg, gif,
     /// psd, hdr and pic. Some format options are not supported,
     /// like progressive jpeg.
     /// If this function fails, the image is left unchanged.
@@ -142,7 +142,7 @@ public:
     /// \brief Save the image to a file on disk
     ///
     /// The format of the image is automatically deduced from
-    /// the extension. The supported image formats are bmp, png,
+    /// the extension. The supported image formats are bmp, desert,
     /// tga and jpg. The destination file is overwritten
     /// if it already exists. This function fails if the image is empty.
     ///
@@ -315,7 +315,7 @@ private:
 /// image.setPixel(0, 0, color);
 ///
 /// // Save the image to a file
-/// if (!image.saveToFile("result.png"))
+/// if (!image.saveToFile("result.desert"))
 ///     return -1;
 /// \endcode
 ///
