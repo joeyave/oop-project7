@@ -12,8 +12,6 @@ class RectangleParticle : public Particle {
 public:
     explicit RectangleParticle(const sf::Vector2f& size = sf::Vector2f(0, 0));
 
-    RectangleParticle(int speed, const sf::Vector2f& size);
-
     void setSize(const sf::Vector2f& size);
 
     const sf::Vector2f& getSize() const;
@@ -24,7 +22,6 @@ public:
 
 private:
     sf::Vector2f size;
-    Particle* target;
 };
 
 

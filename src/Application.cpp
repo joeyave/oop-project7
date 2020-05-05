@@ -3,12 +3,12 @@
 //
 
 #include "Application.h"
-#include "Constants.h"
-#include "particles/RectangleParticle.h"
-#include "particles/CircleParticle.h"
-#include "Utils.h"
 #include <experimental/filesystem>
+#include "effolkronium/random.hpp"
 #include <iostream>
+
+using Random = effolkronium::random_static;
+using namespace std::literals::chrono_literals;
 
 Application::Application() {
     window.create(sf::VideoMode(settings::WINDOW_X, settings::WINDOW_Y),
@@ -18,12 +18,13 @@ Application::Application() {
     window.setKeyRepeatEnabled(false);
 
     loadTextures();
-    isPaused = false;
+    particleFactory = new ParticleFactory(&textureHolder);
 }
 
 void Application::run() {
+
+    // Thread to spawn random particles.
     threads.emplace_back([this]() {
-        srand(time(nullptr));
         createRandomParticles();
     });
 
@@ -32,7 +33,6 @@ void Application::run() {
     });
 
     threads.emplace_back([this]() {
-        srand(time(nullptr));
         moveParticles();
     });
 
@@ -41,25 +41,32 @@ void Application::run() {
     });
 
     while (window.isOpen()) {
-        sf::Event event{};
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
-                isPaused = true;
-                for (auto& thread : threads) {
-                    thread.join();
-                }
-                window.close();
+        processInput();
+        render();
+    }
+}
+
+void Application::processInput() {
+    sf::Event event{};
+    while (window.pollEvent(event)) {
+        if (event.type == sf::Event::Closed) {
+            window.close();
+
+            for (auto& thread : threads) {
+                thread.join();
             }
         }
-
-        window.clear();
-
-        for (Particle* particle : particles) {
-            window.draw(*particle);
-        }
-
-        window.display();
     }
+}
+
+void Application::render() {
+    window.clear();
+
+    for (Particle* particle : particles) {
+        window.draw(*particle);
+    }
+
+    window.display();
 }
 
 void Application::loadTextures() {
@@ -97,79 +104,44 @@ void Application::createRandomParticles() {
     while (window.isOpen()) {
         if (particles.size() < settings::MAX_SPAWN_AMOUNT) {
             mutex.lock();
-
-            int randTexture = getRand(0, textureHolder.size() - 1);
-            int randShape = getRand(0, ParticleFactory::ShapeType::SHAPE_COUNT - 1);
-            int randSize = getRand(settings::MIN_SIZE, settings::MAX_SIZE);
-            int randSpeed = getRand(1, settings::MAX_SPEED);
-            sf::Vector2f position(getRand(0, settings::WINDOW_X), getRand(0, settings::WINDOW_Y));
-
-            Particle* particle;
-
-            if (randShape == ShapeType::Square) {
-                particle = new RectangleParticle(randSpeed, sf::Vector2f(randSize, randSize));
-                particle->setTexture(&textureHolder.get(randTexture));
-                particle->setOrigin(sf::Vector2f(randSize / 2, randSize / 2));
-                particle->setPosition(position);
-            } else {
-                particle = new CircleParticle(randSpeed, randSize);
-                particle->setTexture(&textureHolder.get(randTexture));
-                particle->setOrigin(sf::Vector2f(randSize, randSize));
-                particle->setPosition(position);
-            }
-
+            auto particle = particleFactory->createRandomParticle();
             particles.push_back(particle);
             mutex.unlock();
         }
 
+        std::this_thread::sleep_for(0.1s);
     }
-
 }
 
 void Application::joinParticles() {
     while (window.isOpen()) {
         mutex.lock();
-
         for (auto& particle : particles) {
-            while (particle && !particle->getParticleTarget()) {
+            while (particle && !particle->getTarget()) {
                 // Get random element from particles vector.
-                auto randomTarget = *utils::select_randomly(particles.begin(), particles.end());
-
-                if (randomTarget && randomTarget != particle && !randomTarget->getParticleTarget()) {
+                auto randomTarget = *Random::get(particles);
+                if (randomTarget && randomTarget != particle && !randomTarget->getTarget()) {
                     particle->setParticleTarget(randomTarget);
                     randomTarget->setParticleTarget(particle);
-                } else {
+                } else { // There isn't any target to join to jet.
                     break;
                 }
             }
         }
         mutex.unlock();
+        std::this_thread::sleep_for(3s);
     }
 }
 
 void Application::moveParticles() {
     while (window.isOpen()) {
+        mutex.lock();
         for (auto& particle : particles) {
-            if (particle && particle->getParticleTarget()) {
-                if (particle->getPosition().x < particle->getParticleTarget()->getPosition().x) {
-                    particle->move(0.0001f, 0.0f);
-                } else if (particle->getPosition().x > particle->getParticleTarget()->getPosition().x) {
-                    particle->move(-0.0001f, 0.0f);
-                }
-                if (particle->getPosition().y < particle->getParticleTarget()->getPosition().y) {
-                    particle->move(0.0f, 0.0001f);
-                } else if (particle->getPosition().y > particle->getParticleTarget()->getPosition().y) {
-                    particle->move(0.0f, -0.0001f);
-                }
-
-                mutex.lock();
-
-                if (particle->getGlobalBounds().intersects(particle->getParticleTarget()->getGlobalBounds())) {
-                    particle->setId(-1);
-                }
-                mutex.unlock();
+            if (particle && particle->getTarget()) {
+                particle->moveToTarget();
             }
         }
+        mutex.unlock();
     }
 }
 
@@ -184,9 +156,5 @@ void Application::deleteParticles() {
             mutex.unlock();
         }
     }
-}
-
-int Application::getRand(int start, int end) {
-    return rand() % ((end - start) + 1) + start;
 }
 

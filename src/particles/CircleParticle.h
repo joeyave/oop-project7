@@ -14,8 +14,6 @@ class CircleParticle : public Particle {
 public:
     explicit CircleParticle(float radius = 0, std::size_t pointCount = 30);
 
-    CircleParticle(int speed, float radius, size_t pointCount = 30);
-
     void setRadius(float radius);
 
     float getRadius() const;
@@ -29,7 +27,6 @@ public:
 private:
     float radius;
     std::size_t pointCount;
-    Particle* target;
 };
 
 

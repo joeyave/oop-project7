@@ -19,12 +19,9 @@ public:
 
     explicit ParticleFactory(TextureHolder<int>* textureHolder);
 
-    Particle* createShape(sf::Vector2f position);
+    Particle* createRandomParticle();
 
 protected:
-    Particle* createRandomParticle(sf::Vector2f position);
-
-    static int r(int lowest, int highest);
 
     TextureHolder<int>* textureHolder;
 };

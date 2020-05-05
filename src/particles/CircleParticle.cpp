@@ -10,14 +10,6 @@ CircleParticle::CircleParticle(float radius, std::size_t pointCount) {
     update();
 }
 
-CircleParticle::CircleParticle(int speed, float radius, size_t pointCount)
-        : Particle(speed) {
-    this->target = nullptr;
-    this->radius = radius;
-    this->pointCount = pointCount;
-    update();
-}
-
 void CircleParticle::setRadius(float radius) {
     this->radius = radius;
     update();

@@ -14,12 +14,6 @@
 
 class Application {
 public:
-    enum ShapeType {
-        Square,
-        Circle,
-        SHAPE_COUNT
-    };
-
     Application();
 
     void run();
@@ -35,20 +29,18 @@ private:
 
     void deleteParticles();
 
-    int getRand(int start, int end);
-
     sf::RenderWindow window;
     ParticleFactory* particleFactory{};
     TextureHolder<int> textureHolder;
 
-    bool isPaused;
-
     std::vector<Particle*> particles;
-    std::vector<Particle*> particlesToDelete;
 
     std::mutex mutex;
-
     std::vector<std::thread> threads;
+
+    void render();
+
+    void processInput();
 };
 
 

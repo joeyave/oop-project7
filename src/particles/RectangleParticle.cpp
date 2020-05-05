@@ -3,17 +3,9 @@
 //
 
 #include "RectangleParticle.h"
-#include "../Utils.h"
 
 RectangleParticle::RectangleParticle(const sf::Vector2f& size) {
     this->size = size;
-    this->target = nullptr;
-    update();
-}
-
-RectangleParticle::RectangleParticle(int speed, const sf::Vector2f& size) : Particle(speed) {
-    this->size = size;
-    this->target = nullptr;
     update();
 }
 

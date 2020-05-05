@@ -2,24 +2,16 @@
 // Created by avelt on 5/3/2020.
 //
 
-#include <cmath>
 #include "Particle.h"
-#include "../Utils.h"
 
-Particle::Particle(int speed, sf::Vector2f direction) {
-    this->speed = speed;
-    this->direction = normalize(direction);
+Particle::Particle() {
     this->id = counter++;
-    this->particleTarget = nullptr;
+    this->speed = 0;
+    this->target = nullptr;
 }
 
 int Particle::getWidth() {
     return getGlobalBounds().width;
-}
-
-sf::Vector2f Particle::normalize(const sf::Vector2f& vector2f) {
-    float vLength = sqrtf(pow(vector2f.x, 2) + pow(vector2f.y, 2));
-    return sf::Vector2f(vector2f.x / vLength, vector2f.y / vLength);
 }
 
 int Particle::counter = 0;
@@ -28,35 +20,47 @@ int Particle::getId() const {
     return id;
 }
 
-Particle::Particle() {
-    this->id = counter++;
-    this->particleTarget = nullptr;
-}
-
-Particle::Particle(int speed) : speed(speed) {
+Particle::Particle(float speed) {
     this->speed = speed;
     this->id = counter++;
-    this->particleTarget = nullptr;
+    this->target = nullptr;
 }
 
-Particle* Particle::getParticleTarget() const {
-    return particleTarget;
+Particle* Particle::getTarget() const {
+    return target;
 }
 
-
-void Particle::setDirection(const sf::Vector2f& direction) {
-    Particle::direction = direction;
-}
-
-void Particle::setSpeed(int speed) {
+void Particle::setSpeed(float speed) {
     Particle::speed = speed;
 }
 
 void Particle::setParticleTarget(Particle* particleTarget) {
-    Particle::particleTarget = particleTarget;
+    Particle::target = particleTarget;
 }
 
 void Particle::setId(int id) {
     Particle::id = id;
+}
+
+void Particle::moveToTarget() {
+    if (target) {
+        auto particlePosition = getPosition();
+        auto targetPosition = target->getPosition();
+
+        if (particlePosition.x < targetPosition.x) {
+            move(speed, 0.0f);
+        } else if (particlePosition.x > targetPosition.x) {
+            move(-speed, 0.0f);
+        }
+        if (particlePosition.y < targetPosition.y) {
+            move(0.0f, speed);
+        } else if (particlePosition.y > targetPosition.y) {
+            move(0.0f, -speed);
+        }
+
+        if (getGlobalBounds().intersects(getTarget()->getGlobalBounds())) {
+            setId(-1);
+        }
+    }
 }
 

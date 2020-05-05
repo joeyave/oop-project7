@@ -11,37 +11,28 @@
 
 class Particle : public sf::Shape {
 public:
-    explicit Particle(int speed);
+    Particle();
+
+    explicit Particle(float speed);
 
     int getWidth();
 
     int getId() const;
 
-    void setDirection(const sf::Vector2f& direction);
+    void setId(int id);
 
-    void setSpeed(int speed);
+    void setSpeed(float speed);
 
-    Particle* getParticleTarget() const;
+    Particle* getTarget() const;
 
     void setParticleTarget(Particle* particleTarget);
 
-    void setId(int id);
-
-protected:
-    Particle();
-
-    Particle(int speed, sf::Vector2f direction);
-
-private:
-
-    sf::Vector2f normalize(const sf::Vector2f& vector2f);
-
+    void moveToTarget();
 
 private:
     int id;
-    int speed;
-    sf::Vector2f direction;
-    Particle* particleTarget;
+    float speed;
+    Particle* target;
 
     static int counter;
 };
