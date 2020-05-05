@@ -60,7 +60,7 @@ void Application::processInput() {
 }
 
 void Application::render() {
-    window.clear();
+    window.clear(sf::Color(236, 236, 236));
 
     for (Particle* particle : particles) {
         window.draw(*particle);
@@ -160,8 +160,9 @@ void Application::deleteParticles() {
         for (auto& particle : particles) {
             mutex.lock();
             if (particle->getId() == -1) {
-                particles.erase(std::remove(particles.begin(),
-                                            particles.end(), particle), particles.end());
+                particles.erase(
+                        std::remove(particles.begin(), particles.end(), particle),
+                        particles.end());
             }
             mutex.unlock();
         }

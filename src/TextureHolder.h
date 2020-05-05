@@ -18,14 +18,15 @@ public:
 
     void load(const Identifier identifier, const std::string& fileName) {
         std::unique_ptr<sf::Texture> texture(new sf::Texture());
-        assert(texture->loadFromFile(fileName));    //	Load file and check if path is valid
+        assert(texture->loadFromFile(fileName));    //	Load file and check if path is valid.
 
         insertResource(identifier, std::move(texture));
     }
 
     sf::Texture& get(const Identifier identifier) const {
         auto foundID = textureMap.find(identifier);
-        assert(foundID != textureMap.end());        //	Check if parameter identifier exists within map
+        //	Check if parameter identifier exists within map.
+        assert(foundID != textureMap.end());
 
         return *foundID->second.get();
     }
