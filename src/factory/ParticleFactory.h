@@ -13,7 +13,6 @@ class ParticleFactory {
 public:
     enum ShapeType {
         Square,
-        Circle,
         SHAPE_COUNT
     };
 

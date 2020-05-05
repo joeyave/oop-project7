@@ -24,6 +24,6 @@ add_executable(project7 main.cpp
         src/factory/ParticleFactory.h
         src/particles/Particle.cpp
         src/particles/Particle.h
-        src/particles/RectangleParticle.cpp src/particles/RectangleParticle.h src/particles/CircleParticle.cpp src/particles/CircleParticle.h)
+        src/particles/RectangleParticle.cpp src/particles/RectangleParticle.h)
 
 target_link_libraries(project7 sfml-system sfml-window sfml-graphics sfml-network sfml-audio)
